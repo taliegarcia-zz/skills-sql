@@ -11,6 +11,8 @@ SELECT brand_name, name FROM Models WHERE year = 1964;
 -- 4. Select the model name, brand name, and headquarters for the Ford Mustang 
 --    from the Models and Brands tables.
 SELECT m.name, m.brand_name, b.headquarters FROM Models AS m 
+    -- m.brand_name and b.headquarters may be a little redundant since those fields are not shared between tables
+    -- but I like to be explicit ! ! ! 
     JOIN Brands AS b 
     ON m.brand_name = b.name
         WHERE m.name = 'Mustang';
@@ -49,13 +51,24 @@ SELECT m.brand_name AS brand, m.name AS model_name, b.founded AS year_brand_foun
 -- 1. Modify this query so it shows all **brands** that are not discontinued
 -- regardless of whether they have any cars in the cars table.
 -- before:
-    -- SELECT b.name,
-    --        b.founded,
-    --        m.name
-    -- FROM Model AS m
-    --   LEFT JOIN brands AS b
-    --     ON b.name = m.brand_name
-    -- WHERE b.discontinued IS NULL;
+    """SELECT b.name, b.founded, m.name
+            FROM Models AS m
+                LEFT JOIN Brands AS b
+                    ON b.name = m.brand_name
+                        WHERE b.discontinued IS NULL;"""
+                        -- changed to """ because I'm sad there is no python in this homework... :(
+                        -- and also...just looked strangely like a multiple choice question with b. and m. -- eh.
+
+-- 1. Answer:
+"""SELECT b.name AS brand_name, b.founded AS year_founded, m.name AS model_name 
+    FROM Brands as b 
+        LEFT JOIN Models as m 
+            ON b.name = m.brand_name
+                WHERE b.discontinued IS NULL;"""
+    -- can check against... """SELECT name FROM Brands WHERE discontinued IS NULL;""" -- right?
+    -- changing to FROM Brands and LEFT JOIN Models means Brands info is prioritized...
+    -- so even if nothing comes from a query into the Models table, the Brand info is still listed
+
 
 -- 2. Modify this left join so it only selects models that have brands in the Brands table.
 -- before: 
@@ -65,9 +78,32 @@ SELECT m.brand_name AS brand, m.name AS model_name, b.founded AS year_brand_foun
     -- FROM Models AS m
     --   LEFT JOIN Brands AS b
     --     ON b.name = m.brand_name;
+-- 2. Answer:
+    """SELECT m.name, m.brand_name, b.founded
+        FROM Models AS m
+            INNER JOIN Brands AS b
+            ON (m.brand_name=b.name)
+            ORDER BY m.brand_name;"""
+    
+    -- unless I was really really supposed to make Left join work anyway?:
+    """SELECT m.name, m.brand_name, b.founded
+            FROM Models AS m
+            LEFT JOIN Brands AS b
+            ON (m.brand_name=b.name)
+            WHERE (m.brand_name=b.name)
+            ORDER BY m.brand_name;"""
 
 -- followup question: In your own words, describe the difference between 
 -- left joins and inner joins.
+-- ! ! ! Happy Words ! ! !:
+-- The Left Join returns all data requested from the original table 
+-- that the the FROM clause is fetching
+-- it joins with the table specified by LEFT JOIN
+-- If nothing is found in the LEFT JOIN table, the query simply returns NULL for those fields
+-- We still get the complete data request from the original table, 
+-- regardless of the results of the LEFT JOIN
+-- Alternatively, if we only want to see data with records aka references 
+-- present in OR shared by both tables, we would use INNER JOIN
 
 -- 3. Modify the query so that it only selects brands that don't have any car models in the cars table. 
 -- (Hint: it should only show Tesla's row.)
@@ -78,6 +114,21 @@ SELECT m.brand_name AS brand, m.name AS model_name, b.founded AS year_brand_foun
     --   LEFT JOIN Models
     --     ON brands.name = Models.brand_name
     -- WHERE Models.year > 1940;
+    """SELECT b.name, b.founded
+        FROM Brands as b
+            LEFT JOIN Models as m
+                ON b.name = m.brand_name
+                    WHERE m.year > 1940
+                        ORDER BY b.name;"""
+-- 3. Answer
+"""SELECT b.name, b.founded
+        FROM Brands as b
+            LEFT JOIN Models as m
+                ON b.name = m.brand_name
+                WHERE m.id IS NULL;"""
+-- Where: no id is found for the query! == no data in Models table for that brand name
+-- m.year does not matter at that point if it doesn't exist...so removed from query.
+
 
 -- 4. Modify the query to add another column to the results to show 
 -- the number of years from the year of the model *until* the brand becomes discontinued
@@ -91,7 +142,17 @@ SELECT m.brand_name AS brand, m.name AS model_name, b.founded AS year_brand_foun
     --   LEFT JOIN brands AS b
     --     ON m.brand_name = b.name
     -- WHERE b.discontinued NOT NULL;
-
+    """SELECT b.name, m.name, m.year, b.discontinued
+        FROM Models AS m
+            LEFT JOIN brands AS b
+                ON m.brand_name = b.name
+                    WHERE b.discontinued NOT NULL;"""
+-- 4. Answer:
+"""SELECT b.name, m.name, m.year, b.discontinued, (b.discontinued - b.founded) AS years_until_brand_discontinued
+        FROM Models AS m
+            LEFT JOIN brands AS b
+                ON m.brand_name = b.name
+                    WHERE b.discontinued NOT NULL;"""
 
 
 
