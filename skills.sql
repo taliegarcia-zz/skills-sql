@@ -159,6 +159,7 @@ SELECT m.brand_name AS brand, m.name AS model_name, b.founded AS year_brand_foun
 -- Part 3: Futher Study
 
 -- 1. Select the **name** of any brand with more than 5 models in the database.
+SELECT brand_name FROM Models GROUP BY brand_name HAVING COUNT(*) > 5;
 
 -- 2. Add the following rows to the Models table.
 
@@ -166,10 +167,32 @@ SELECT m.brand_name AS brand, m.name AS model_name, b.founded AS year_brand_foun
 -- ----    ----       ----------
 -- 2015    Chevrolet  Malibu
 -- 2015    Subaru     Outback
+-- I think the brand_name and model name are mixed up in this table?
+-- Also if the table was set up with AUTOINCREMENT, couldn't I avoid writing in the id#?
+INSERT INTO Models VALUES (49, 2015, 'Chevrolet', 'Malibu');
+INSERT INTO Models VALUES (50, 2015, 'Subaru', 'Outback');
+
 
 -- 3. Write a SQL statement to crate a table called ``Awards`` 
 --    with columns ``name``, ``year``, and ``winner``. Choose 
 --    an appropriate datatype and nullability for each column.
+CREATE TABLE Awards (
+name VARCHAR(50) NOT NULL,
+year INT(4) NOT NULL,
+winner VARCHAR(50)
+);
+
+-- changed when I saw question below:
+DROP TABLE Awards;
+
+CREATE TABLE Awards (
+name VARCHAR(50) NOT NULL,
+year INT(4) NOT NULL,
+winner_model_id INTEGER 
+    REFERENCES Models
+);
+-- VARCHAR(50) is the standard in the other tables: Models, Brands
+-- I thought winner was the "name" of a brand or model, but the next question makes me rethink that...
 
 -- 4. Write a SQL statement that adds the following rows to the Awards table:
 
@@ -177,9 +200,48 @@ SELECT m.brand_name AS brand, m.name AS model_name, b.founded AS year_brand_foun
 --   ----                 ----      ---------------
 --   IIHS Safety Award    2015      # get the ``id`` of the 2015 Chevrolet Malibu
 --   IIHS Safety Award    2015      # get the ``id`` of the 2015 Subaru Outback
+-- Sooo maybe instead of a table of Awards with name, year, winner....it should be name, year, winner_model_id?
+
+-- redo setup of Awards table:
+DROP TABLE Awards;
+
+-- turn on referential integrity:
+PRAGMA foreign_keys=ON;
+
+-- new Awards table with referential integrity:
+CREATE TABLE Awards (
+name VARCHAR(50) NOT NULL,
+year INT(4) NOT NULL,
+winner_model_id INTEGER 
+    REFERENCES Models
+);
+
+-- yoyoyo now I can add awards with a subquery to the Models table!
+INSERT INTO Awards VALUES ('IIHS Safety Award',  2015, (SELECT id FROM Models WHERE name = 'Malibu'));
+INSERT INTO Awards VALUES ('IIHS Safety Award',  2015, (SELECT id FROM Models WHERE name = 'Outback'));
+-- I really wanted to try id INTEGER PRIMARY KEY AUTOINCREMENT
+-- I couldn't make it work on the Awards table though...so got rid of the id field...which wasn't required anyway, eh?
 
 -- 5. Using a subquery, select only the *name* of any model whose 
 -- year is the same year that *any* brand was founded.
+SELECT name
+FROM Models
+WHERE year IN
+  (
+   SELECT founded
+   FROM brands
+  );
+
+
+-- With join...
+SELECT m.name
+FROM Models AS m
+JOIN Brands as b
+ON m.year = b.founded;"""
+
+
+
+
 
 
 
