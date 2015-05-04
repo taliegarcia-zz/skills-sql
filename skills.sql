@@ -224,17 +224,17 @@ INSERT INTO Awards VALUES ('IIHS Safety Award',  2015, (SELECT id FROM Models WH
 
 -- 5. Using a subquery, select only the *name* of any model whose 
 -- year is the same year that *any* brand was founded.
-SELECT name
+"""SELECT name
 FROM Models
 WHERE year IN
   (
    SELECT founded
    FROM brands
-  );
+  );"""
 
 
 -- With join...
-SELECT m.name
+"""SELECT m.name
 FROM Models AS m
 JOIN Brands as b
 ON m.year = b.founded;"""
